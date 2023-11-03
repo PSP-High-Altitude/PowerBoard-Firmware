@@ -17,6 +17,7 @@
 #include "esp_log.h"
 #include "mdns.h"
 #include "lwip/apps/netbiosns.h"
+#include "power_control.h"
 
 #define BOARD1  // Comment out for Board 2
 
@@ -111,7 +112,7 @@ esp_err_t init_wifi(void)
         return ESP_FAIL;
     }
     
-    ESP_LOGI(TAG, "Setup wifi AP");
+    ESP_LOGI(TAG, "WiFi AP started");
 
     return ESP_OK;
 }
@@ -125,6 +126,7 @@ void app_main(void)
     netbiosns_init();
     netbiosns_set_name("powerboard");
 
+    ESP_ERROR_CHECK(init_power_control());
     ESP_ERROR_CHECK(init_wifi());
     ESP_ERROR_CHECK(init_fs());
     ESP_ERROR_CHECK(start_rest_server("/www"));
