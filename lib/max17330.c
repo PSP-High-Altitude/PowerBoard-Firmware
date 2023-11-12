@@ -34,7 +34,7 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
     // NVS should only be written a maximum of 7 times!
 
     // Set charging current
-    uint16_t buf = 0x184B;
+    uint16_t buf = 0x184B;  // 250 mA
     if(max17330_write(conf, MAX17330_nICHGCFG, &buf, 1) != ESP_OK)
     {
         return ESP_FAIL;
@@ -87,7 +87,7 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
     {
         return ESP_FAIL;
     }
-    stat->max_cap = 0.5 * buf;
+    stat->curr_cap = 0.5 * buf;
 
     // Current state of charge
     if(max17330_read(conf, MAX17330_REPSOC, &buf, 1) != ESP_OK)
@@ -122,7 +122,7 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
     {
         return ESP_FAIL;
     }
-    stat->max_cap = buf / 25600.0;
+    stat->battery_age = buf / 25600.0;
 
     // Charging?
     if(max17330_read(conf, MAX17330_CHGSTAT, &buf, 1) != ESP_OK)

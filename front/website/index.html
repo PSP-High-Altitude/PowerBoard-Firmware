@@ -186,10 +186,13 @@
             }
         }
         
-        function set_info(max_mah, curr_mah, battery) {
+        function set_info(battery_obj, battery) {
             document.getElementById(battery == 0 ? "flight_info" : "pyro_info").innerText = 
-                "Current charge: " + curr_mah.toFixed() + " mAh\nMax capacity: " +
-                max_mah.toFixed() + "mAh";
+                "Current charge: " + battery_obj.curr_cap.toFixed() + " mAh\n" +
+                "Max capacity: " + battery_obj.max_cap.toFixed() + "mAh\n" +
+                "Number of cycles: " + battery_obj.charge_cycles.toFixed() + " cycles\n" +
+                "Percent of original capacity: " + (battery_obj.age*100).toFixed() + "%\n" +
+                (battery_obj.charging ? ("Time to full: " + battery_obj.ttf.toFixed() + " min") : ("Time to empty: " + battery_obj.tte.toFixed() + " min"));
         }
         
         function set_batteries(response) {
@@ -197,7 +200,7 @@
                 return;
             }
             var batt_arr = response.json();
-            for(var i = 0; i < batt_arr; i++) {
+            for(var i = 0; i < batt_arr.length; i++) {
                 set_charge(batt_arr[i].soc, i);
                 set_charging(batt_arr[i].charging, i);
                 set_info(batt_arr[i].max_cap, batt_arr[i].curr_cap, i);
@@ -263,13 +266,32 @@
         bolt_animate();
         
         // TEST CODE
-        set_charge(0.80, 0);
-        set_charge(0.40, 1);
-        set_charging(false, 0);
-        set_charging(true, 1);
-        set_info(2000, 1600, 0);
-        set_info(1500, 600, 1);
-        set_armed(true);
+        let batt_arr = [
+        {
+            "max_cap" : 2500,
+            "curr_cap" : 1600,
+            "soc" : 0.80,
+            "charging" : false,
+            "charge_cycles" : 20,
+            "age" : 0.95,
+            "ttf" : 0,
+            "tte" : 120
+        },
+        {
+            "max_cap" : 1500,
+            "curr_cap" : 600,
+            "soc" : 0.40,
+            "charging" : true,
+            "charge_cycles" : 80,
+            "age" : 0.90,
+            "ttf" : 120,
+            "tte" : 0
+        }];
+        for(var i = 0; i < batt_arr.length; i++) {
+            set_charge(batt_arr[i].soc, i);
+            set_charging(batt_arr[i].charging, i);
+            set_info(batt_arr[i], i);
+        }
         
         setInterval(function () {
             fetch("/battery").then(set_batteries);
