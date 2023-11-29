@@ -45,6 +45,7 @@ void set_armed()
     armed = 1;
     gpio_set_level(ARM_PIN, 1);
     nvs_set_u8(nvs, "armed", 1);
+    nvs_commit(nvs);
 }
 
 void set_disarmed()
@@ -52,6 +53,7 @@ void set_disarmed()
     armed = 0;
     gpio_set_level(ARM_PIN, 0);
     nvs_set_u8(nvs, "armed", 0);
+    nvs_commit(nvs);
 }
 
 battery_stat_t get_battery(battery_t battery)
