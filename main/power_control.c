@@ -1,8 +1,10 @@
 #include "power_control.h"
 #include "driver/gpio.h"
+#include <nvs.h>
 
 #define ARM_PIN 16
 uint8_t armed;
+extern nvs_handle_t nvs;
 
 const max17330_conf_t flight = {
     .battery = FLIGHT_BATTERY,
@@ -42,12 +44,14 @@ void set_armed()
 {
     armed = 1;
     gpio_set_level(ARM_PIN, 1);
+    nvs_set_u8(nvs, "armed", 1);
 }
 
 void set_disarmed()
 {
     armed = 0;
     gpio_set_level(ARM_PIN, 0);
+    nvs_set_u8(nvs, "armed", 0);
 }
 
 battery_stat_t get_battery(battery_t battery)

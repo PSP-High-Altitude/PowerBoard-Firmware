@@ -34,6 +34,8 @@
     static const char *TAG = "Powerboard2";
 #endif
 
+nvs_handle_t nvs;
+
 esp_err_t start_rest_server(const char *base_path);
 
 static void initialise_mdns(void)
@@ -117,6 +119,28 @@ esp_err_t init_wifi(void)
     return ESP_OK;
 }
 
+esp_err_t init_nvs(void)
+{
+    uint8_t nvs_armed;
+    if(nvs_open("nvs", NVS_READWRITE, &nvs) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    if(nvs_get_u8(nvs, "armed", &nvs_armed) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    if(nvs_armed)
+    {
+        set_armed();
+    }
+    else
+    {
+        set_disarmed();
+    }
+    return ESP_OK;
+}
+
 void app_main(void)
 {
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -130,4 +154,5 @@ void app_main(void)
     ESP_ERROR_CHECK(init_wifi());
     ESP_ERROR_CHECK(init_fs());
     ESP_ERROR_CHECK(start_rest_server("/www"));
+    ESP_ERROR_CHECK(init_nvs());
 }
