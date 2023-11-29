@@ -19,20 +19,12 @@
 #include "lwip/apps/netbiosns.h"
 #include "power_control.h"
 
-#define BOARD1  // Comment out for Board 2
-
 #define MDNS_INSTANCE "ESPMDNS"
 #define MDNS_HOST_NAME "powerboard"
 
-#ifdef BOARD1
-    #define APP_SSID "Powerboard1"
-    #define APP_CHANNEL 1
-    static const char *TAG = "Powerboard1";
-#else
-    #define APP_SSID "Powerboard2"
-    #define APP_CHANNEL 2
-    static const char *TAG = "Powerboard2";
-#endif
+#define APP_SSID "Powerboard1"
+#define APP_CHANNEL 1
+static const char *TAG = "Powerboard1";
 
 nvs_handle_t nvs;
 
