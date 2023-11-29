@@ -91,18 +91,22 @@ esp_err_t init_wifi(void)
     };
     if(esp_wifi_init(&init_conf) != ESP_OK)
     {
+        ESP_LOGE(TAG, "Failed to initialize WiFi");
         return ESP_FAIL;
     }
     if(esp_wifi_set_mode(WIFI_IF_AP) != ESP_OK)
     {
+        ESP_LOGE(TAG, "Failed to set WiFi mode");
         return ESP_FAIL;
     }
     if(esp_wifi_set_config(WIFI_IF_AP, &conf) != ESP_OK)
     {
+        ESP_LOGE(TAG, "Failed to set WiFi config");
         return ESP_FAIL;
     }
     if(esp_wifi_start() != ESP_OK)
     {
+        ESP_LOGE(TAG, "Failed to start WiFi");
         return ESP_FAIL;
     }
     
@@ -116,10 +120,12 @@ esp_err_t init_nvs(void)
     uint8_t nvs_armed;
     if(nvs_open("nvs", NVS_READWRITE, &nvs) != ESP_OK)
     {
+        ESP_LOGE(TAG, "Failed to open NVS");
         return ESP_FAIL;
     }
     if(nvs_get_u8(nvs, "armed", &nvs_armed) != ESP_OK)
     {
+        ESP_LOGE(TAG, "Failed to read armed from NVS");
         return ESP_FAIL;
     }
     if(nvs_armed)
@@ -130,6 +136,7 @@ esp_err_t init_nvs(void)
     {
         set_disarmed();
     }
+    ESP_LOGI(TAG, "NVS initialized and armed set to %d", nvs_armed);
     return ESP_OK;
 }
 
