@@ -2,7 +2,7 @@
 #include "driver/gpio.h"
 #include <nvs.h>
 
-#define ARM_PIN 16
+#define ARM_PIN 5
 uint8_t armed;
 extern nvs_handle_t nvs;
 
@@ -10,16 +10,16 @@ const max17330_conf_t flight = {
     .battery = FLIGHT_BATTERY,
     .charge_current = 250,
     .clk = 400000,
-    .scl = 9,
-    .sda = 10,
+    .scl = 2,
+    .sda = 1,
 };
 
 const max17330_conf_t pyro = {
     .battery = FLIGHT_BATTERY,
     .charge_current = 250,
     .clk = 400000,
-    .scl = 9,
-    .sda = 10,
+    .scl = 4,
+    .sda = 3,
 };
 
 esp_err_t init_power_control()

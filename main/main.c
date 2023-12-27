@@ -22,6 +22,7 @@
 #define MDNS_INSTANCE "ESPMDNS"
 #define MDNS_HOST_NAME "powerboard"
 
+// Change for each board
 #define APP_SSID "Powerboard1"
 #define APP_CHANNEL 1
 static const char *TAG = "Powerboard1";
@@ -142,7 +143,11 @@ esp_err_t init_nvs(void)
 
 void app_main(void)
 {
+    // Prioritize loading the last state of the board
     ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_ERROR_CHECK(init_nvs());
+
+    // Then handle the rest
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     initialise_mdns();
@@ -153,5 +158,4 @@ void app_main(void)
     ESP_ERROR_CHECK(init_wifi());
     ESP_ERROR_CHECK(init_fs());
     ESP_ERROR_CHECK(start_rest_server("/www"));
-    ESP_ERROR_CHECK(init_nvs());
 }
