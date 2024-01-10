@@ -116,11 +116,11 @@ static esp_err_t arm_post_handler(httpd_req_t *req)
     }
     buf[total_len] = '\0';
 
-    if(strcmp(buf, "disarm"))
+    if(armed)
     {
         set_disarmed();
     }
-    else if(strcmp(buf, "arm"))
+    else
     {
         set_armed();
     }
