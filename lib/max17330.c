@@ -62,7 +62,7 @@ esp_err_t max17330_init(max17330_conf_t conf)
         .clk_flags = 0,
     };
 
-    i2c_param_config(conf.battery, &conf);
+    i2c_param_config(conf.battery, &i2c_conf);
 
     if(i2c_driver_install(conf.battery, I2C_MODE_MASTER, 0, 0, 0) != ESP_OK)
     {
