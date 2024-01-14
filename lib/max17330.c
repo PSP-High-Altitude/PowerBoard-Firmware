@@ -37,16 +37,20 @@ esp_err_t max17330_read(max17330_conf_t conf, uint16_t addr, uint16_t* data, uin
 esp_err_t max17330_first_time_setup(max17330_conf_t conf)
 {
     // NVS should only be written a maximum of 7 times!
+    uint16_t buf;
 
-    // Set precharge current
-    uint16_t buf = 0x2001;
-    if(max17330_write(conf, MAX17330_nCHGCFG0, &buf, 1) != ESP_OK)
+    // Unlock write protection
+    for(uint8_t i = 0; i < 2; i++)
     {
-        return ESP_FAIL;
+        buf = 0x0;
+        if(max17330_write(conf, MAX17330_COMMSTAT, &buf, 1) != ESP_OK)
+        {
+            return ESP_FAIL;
+        }
     }
 
     // Set charging current
-    buf = 0x184B;  // 250 mA
+    buf = 0x314B;  // 500 mA
     if(max17330_write(conf, MAX17330_nICHGCFG, &buf, 1) != ESP_OK)
     {
         return ESP_FAIL;
@@ -55,6 +59,13 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
     // Set thermistor disabled
     buf = 0x0;
     if(max17330_write(conf, MAX17330_nPACKCFG, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+
+    // POR
+    buf = 0x8000;
+    if(max17330_write(conf, MAX17330_RESET, &buf, 1) != ESP_OK)
     {
         return ESP_FAIL;
     }
@@ -130,26 +141,13 @@ esp_err_t max17330_init(max17330_conf_t conf)
             count++;
         }
         ESP_LOGI("MAX17330", "%d, Number of writes remaining: %d", conf.battery, count);
-        return ESP_OK;
     }
     else
     {
         return ESP_FAIL;
     }
 
-    // Set thermistor disabled
-    buf = 0x1;
-    if(max17330_write(conf, MAX17330_nPACKCFG, &buf, 1) != ESP_OK)
-    {
-        return ESP_FAIL;
-    }
-
-    // POR
-    buf = 0x8000;
-    if(max17330_write(conf, MAX17330_RESET, &buf, 1) != ESP_OK)
-    {
-        return ESP_FAIL;
-    }
+    return ESP_OK;
 }
 
 esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
@@ -231,14 +229,6 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
         return ESP_FAIL;
     }
     stat->charge_current = 0.15625 * ((int16_t)buf);
-
-    // Charge Current
-    if(max17330_read(conf, MAX17330_nPACKCFG, &buf, 1) != ESP_OK)
-    {
-        return ESP_FAIL;
-    }
-    ESP_LOGI("MAX17330", "%d, PACKCFG: %d", conf.battery, buf);
-    //ESP_LOGI("MAX17330", "%d, TEMP: %f", conf.battery, (int16_t)buf * (1.0 / 256.0));
 
     return ESP_OK;
 }

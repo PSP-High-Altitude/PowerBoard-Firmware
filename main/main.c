@@ -23,7 +23,7 @@
 #define MDNS_HOST_NAME "powerboard"
 
 // Change for each board
-#define APP_SSID "Power Board 1"
+#define APP_SSID "Powerboard 1"
 #define APP_CHANNEL 1 
 static const char *TAG = "Powerboard1";
 
