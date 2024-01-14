@@ -2,32 +2,26 @@
 #include "driver/gpio.h"
 #include <nvs.h>
 
-#define ARM_PIN 5
+#define ARM_PIN GPIO_NUM_5
 uint8_t armed;
 extern nvs_handle_t nvs;
 
 const max17330_conf_t flight = {
     .battery = FLIGHT_BATTERY,
-    .charge_current = 250,
-    .clk = 400000,
-    .scl = 2,
-    .sda = 1,
+    .clk = 100000,
+    .scl = GPIO_NUM_2,
+    .sda = GPIO_NUM_1,
 };
 
 const max17330_conf_t pyro = {
-    .battery = FLIGHT_BATTERY,
-    .charge_current = 250,
-    .clk = 400000,
-    .scl = 4,
-    .sda = 3,
+    .battery = PYRO_BATTERY,
+    .clk = 100000,
+    .scl = GPIO_NUM_4,
+    .sda = GPIO_NUM_3,
 };
 
 esp_err_t init_power_control()
 {
-    gpio_set_direction(ARM_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(ARM_PIN, 0);
-    armed = 0;
-
     if(max17330_init(flight) != ESP_OK)
     {
         return ESP_FAIL;
@@ -36,6 +30,16 @@ esp_err_t init_power_control()
     {
         return ESP_FAIL;
     }
+    /*
+    if(max17330_first_time_setup(flight) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    if(max17330_first_time_setup(pyro) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    */
 
     return ESP_OK;
 }
@@ -43,6 +47,7 @@ esp_err_t init_power_control()
 void set_armed()
 {
     armed = 1;
+    gpio_set_direction(ARM_PIN, GPIO_MODE_OUTPUT);
     gpio_set_level(ARM_PIN, 1);
     nvs_set_u8(nvs, "armed", 1);
     nvs_commit(nvs);
@@ -51,6 +56,7 @@ void set_armed()
 void set_disarmed()
 {
     armed = 0;
+    gpio_set_direction(ARM_PIN, GPIO_MODE_OUTPUT);
     gpio_set_level(ARM_PIN, 0);
     nvs_set_u8(nvs, "armed", 0);
     nvs_commit(nvs);

@@ -5,5 +5,4 @@ idf_component_register( SRCS "main.c"
                         INCLUDE_DIRS "."
                             "../lib")
 
-set(WEB_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../front/website")
-spiffs_create_partition_image(www ${WEB_SRC_DIR} FLASH_IN_PROJECT)
+spiffs_create_partition_image(www ${CMAKE_CURRENT_SOURCE_DIR}/../front/website FLASH_IN_PROJECT)

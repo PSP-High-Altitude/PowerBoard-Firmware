@@ -23,13 +23,14 @@
 #define MDNS_HOST_NAME "powerboard"
 
 // Change for each board
-#define APP_SSID "Powerboard1"
-#define APP_CHANNEL 1
+#define APP_SSID "Power Board 1"
+#define APP_CHANNEL 1 
 static const char *TAG = "Powerboard1";
 
 nvs_handle_t nvs;
 
 esp_err_t start_rest_server(const char *base_path);
+esp_netif_t *wifi_if;
 
 static void initialise_mdns(void)
 {
@@ -49,7 +50,7 @@ static void initialise_mdns(void)
 esp_err_t init_fs(void)
 {
     esp_vfs_spiffs_conf_t conf = {
-        .base_path = "www",
+        .base_path = "/www",
         .partition_label = NULL,
         .max_files = 5,
         .format_if_mount_failed = false
@@ -95,7 +96,7 @@ esp_err_t init_wifi(void)
         ESP_LOGE(TAG, "Failed to initialize WiFi");
         return ESP_FAIL;
     }
-    if(esp_wifi_set_mode(WIFI_IF_AP) != ESP_OK)
+    if(esp_wifi_set_mode(WIFI_MODE_AP) != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to set WiFi mode");
         return ESP_FAIL;
@@ -118,7 +119,7 @@ esp_err_t init_wifi(void)
 
 esp_err_t init_nvs(void)
 {
-    uint8_t nvs_armed;
+    uint8_t nvs_armed = 0;
     if(nvs_open("nvs", NVS_READWRITE, &nvs) != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to open NVS");
@@ -127,7 +128,6 @@ esp_err_t init_nvs(void)
     if(nvs_get_u8(nvs, "armed", &nvs_armed) != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to read armed from NVS");
-        return ESP_FAIL;
     }
     if(nvs_armed)
     {
@@ -150,12 +150,22 @@ void app_main(void)
     // Then handle the rest
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    
     initialise_mdns();
     netbiosns_init();
     netbiosns_set_name("powerboard");
 
     ESP_ERROR_CHECK(init_power_control());
     ESP_ERROR_CHECK(init_wifi());
+    wifi_if = esp_netif_create_default_wifi_ap();
     ESP_ERROR_CHECK(init_fs());
     ESP_ERROR_CHECK(start_rest_server("/www"));
+
+    while(1) {
+        battery_stat_t stat = get_battery(FLIGHT_BATTERY);
+        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, v_charge: %f, i_charge %f", FLIGHT_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.charge_voltage, stat.charge_current);
+        stat = get_battery(PYRO_BATTERY);
+        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, v_charge: %f, i_charge %f", PYRO_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.charge_voltage, stat.charge_current);
+        
+        vTaskDelay(1000 / portTICK_PERIOD_MS);}
 }
