@@ -203,11 +203,16 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
     stat->battery_age = buf / 25600.0;
 
     // Charging?
+    if(max17330_read(conf, MAX17330_PCKP, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    stat->charging = (0.3125e-3 * buf) > 4.5;
     if(max17330_read(conf, MAX17330_CHGSTAT, &buf, 1) != ESP_OK)
     {
         return ESP_FAIL;
     }
-    stat->charging = buf;
+    stat->charging = stat->charging && (buf & 0x3);
 
     // Current
     if(max17330_read(conf, MAX17330_AVGCURRENT, &buf, 1) != ESP_OK)

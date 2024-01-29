@@ -2,8 +2,8 @@
 <html>
     <head>
         <title>Power Distribution Board</title>
-        <link rel="icon" type="image/x-icon" href="favicon.ico">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        <script src="jquery.js"></script>
     </head>
     <body>
         <div>
@@ -195,23 +195,25 @@
                 (battery_obj.charging ? ("Time to full: " + battery_obj.ttf.toFixed() + " min") : ("Time to empty: " + battery_obj.tte.toFixed() + " min"));
         }
         
-        function set_batteries(response) {
+        async function set_batteries(response) {
             if(!response.ok) {
                 return;
             }
-            var batt_arr = response.json();
+            var batt_arr = await response.json();
+            console.log(batt_arr);
             for(var i = 0; i < batt_arr.length; i++) {
                 set_charge(batt_arr[i].soc, i);
                 set_charging(batt_arr[i].charging, i);
-                set_info(batt_arr[i].max_cap, batt_arr[i].curr_cap, i);
+                set_info(batt_arr[i], i);
             }
         }
         
-        function set_armed(response) {
+        async function set_armed(response) {
             if(!response.ok) {
                 return;
             }
-            var is_armed = response.json().armed;
+            var armed_json = await response.json();
+            var is_armed = armed_json.armed;
             if(is_armed) {
                 document.getElementsByClassName("arm_rect")[0].style.backgroundColor = "red";
                 document.getElementsByClassName("arm_text")[0].innerText = "ARMED";
@@ -264,34 +266,6 @@
         }
         
         bolt_animate();
-        
-        // TEST CODE
-        let batt_arr = [
-        {
-            "max_cap" : 2500,
-            "curr_cap" : 1600,
-            "soc" : 0.80,
-            "charging" : false,
-            "charge_cycles" : 20,
-            "age" : 0.95,
-            "ttf" : 0,
-            "tte" : 120
-        },
-        {
-            "max_cap" : 1500,
-            "curr_cap" : 600,
-            "soc" : 0.40,
-            "charging" : true,
-            "charge_cycles" : 80,
-            "age" : 0.90,
-            "ttf" : 120,
-            "tte" : 0
-        }];
-        for(var i = 0; i < batt_arr.length; i++) {
-            set_charge(batt_arr[i].soc, i);
-            set_charging(batt_arr[i].charging, i);
-            set_info(batt_arr[i], i);
-        }
         
         setInterval(function () {
             fetch("/battery").then(set_batteries);
