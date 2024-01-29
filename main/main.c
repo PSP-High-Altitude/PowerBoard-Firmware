@@ -38,14 +38,15 @@ static void initialise_mdns(void)
     mdns_init();
     mdns_hostname_set(MDNS_HOST_NAME);
     mdns_instance_name_set(MDNS_INSTANCE);
+    mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0);
+    mdns_service_instance_name_set("_http", "_tcp", "Powerboard Web Server");
 
-    mdns_txt_item_t serviceTxtData[] = {
+    mdns_txt_item_t serviceTxtData[2] = {
         {"board", "esp32"},
         {"path", "/"}
     };
 
-    ESP_ERROR_CHECK(mdns_service_add(MDNS_INSTANCE, "_http", "_tcp", 80, serviceTxtData,
-                                     sizeof(serviceTxtData) / sizeof(serviceTxtData[0])));
+    mdns_service_txt_set("_http", "_tcp", serviceTxtData, 2);
 }
 
 esp_err_t init_fs(void)

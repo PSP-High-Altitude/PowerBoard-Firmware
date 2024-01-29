@@ -9,7 +9,7 @@
         <div>
             <img style="margin-left: auto; margin-right: auto; margin-top: 2%; display: block;" src="pspha.png">
         </div>
-        <h1 align="center" style="margin-bottom: 2%;">Power Distribution Board</h1>
+        <h1 align="center" style="margin-bottom: 2%;" id="connection_title">Power Distribution Board</h1>
         <div class="row">
             <div class="column">
                 <h2 align="center">Flight Battery</h2>
@@ -168,6 +168,15 @@
 
         <script>
 
+        function set_connection_status(connected) {
+            console.log(connected);
+            if(connected) {
+                document.getElementById("connection_title").innerText = "Power Distribution Board";
+            } else {
+                document.getElementById("connection_title").innerText = "Connection Lost";
+            }
+        }
+
         function set_charge(charge, battery) {
             document.getElementsByClassName("battery_fill")[battery].style.width = (190*charge).toFixed() + "px";
             document.getElementsByClassName("battery_fill")[battery].style.backgroundColor = "rgb(" + (255*(1-charge**2)).toFixed() + "," + (255*(charge)).toFixed() +",0)";
@@ -231,9 +240,11 @@
             e.preventDefault();
             var armed = document.getElementById("arm_toggle").value === "Arm";
             if(document.getElementById("confirm_box").value === "CONFIRM") {
+
                 fetch("/arm", {method: "POST"}).then(set_armed);
                 console.log("Requested arm/disarm");
             }
+            document.getElementById("confirm_box").value = "";
         }
 
         $(document).ready(function() {
@@ -266,10 +277,26 @@
         }
         
         bolt_animate();
-        
-        setInterval(function () {
-            fetch("/battery").then(set_batteries);
-            fetch("/arm").then(set_armed);
+
+        setInterval(async function () {
+            try {
+                const resp = await fetch("/battery", {
+                    signal: AbortSignal.timeout(1000)
+                });
+                set_batteries(resp);
+                set_connection_status(true);
+            } catch (error) {
+                set_connection_status(false);
+            }
+            try {
+                const resp = await fetch("/arm", {
+                    signal: AbortSignal.timeout(1000)
+                });
+                set_armed(resp);
+                set_connection_status(true);
+            } catch (error) {
+                set_connection_status(false);
+            }
         }, 1000);
         
         </script>
