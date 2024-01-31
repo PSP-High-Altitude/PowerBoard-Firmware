@@ -32,6 +32,7 @@ nvs_handle_t nvs;
 
 esp_err_t start_http_server();
 esp_netif_t *wifi_if;
+TaskHandle_t print_info_handle;
 
 static void initialise_mdns(void)
 {
@@ -143,6 +144,18 @@ esp_err_t init_nvs(void)
     return ESP_OK;
 }
 
+void print_info()
+{
+    while(1) {
+        battery_stat_t stat = get_battery(FLIGHT_BATTERY);
+        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, v_charge: %f, i_charge %f", FLIGHT_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.charge_voltage, stat.charge_current);
+        stat = get_battery(PYRO_BATTERY);
+        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, v_charge: %f, i_charge %f", PYRO_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.charge_voltage, stat.charge_current);
+        
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
 void app_main(void)
 {
     // Prioritize loading the last state of the board
@@ -167,12 +180,5 @@ void app_main(void)
     esp_netif_get_ip_info(wifi_if, &ip_info);
     ESP_LOGI(TAG, "IP Address: " IPSTR, IP2STR(&ip_info.ip));
 
-    while(1) {
-        battery_stat_t stat = get_battery(FLIGHT_BATTERY);
-        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, v_charge: %f, i_charge %f", FLIGHT_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.charge_voltage, stat.charge_current);
-        stat = get_battery(PYRO_BATTERY);
-        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, v_charge: %f, i_charge %f", PYRO_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.charge_voltage, stat.charge_current);
-        
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
+    xTaskCreate(print_info, "print_info", 2048, NULL, tskIDLE_PRIORITY + 1, &print_info_handle);
 }
