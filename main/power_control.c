@@ -30,7 +30,6 @@ esp_err_t init_power_control()
     {
         return ESP_FAIL;
     }
-    
     if(max17330_first_time_setup(flight) != ESP_OK)
     {
         return ESP_FAIL;
@@ -39,7 +38,6 @@ esp_err_t init_power_control()
     {
         return ESP_FAIL;
     }
-    
 
     return ESP_OK;
 }

@@ -147,6 +147,19 @@ esp_err_t max17330_init(max17330_conf_t conf)
         return ESP_FAIL;
     }
 
+    if(max17330_read(conf, MAX17330_PROTALRT, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    printf("Protection alert: 0x%x\n", buf);
+
+    // Set protection current threshold
+    buf = 0xD04;
+    if(max17330_write(conf, MAX17330_nODSCTH, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+
     return ESP_OK;
 }
 
@@ -202,6 +215,7 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
     }
     stat->battery_age = buf / 25600.0;
 
+    /*
     // Charging?
     if(max17330_read(conf, MAX17330_PCKP, &buf, 1) != ESP_OK)
     {
@@ -213,6 +227,7 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
         return ESP_FAIL;
     }
     stat->charging = stat->charging && (buf & 0x3);
+    */
 
     // Current
     if(max17330_read(conf, MAX17330_AVGCURRENT, &buf, 1) != ESP_OK)
@@ -220,6 +235,7 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
         return ESP_FAIL;
     }
     stat->current_mah = 0.15625 * ((int16_t)buf);
+    stat->charging = stat->current_mah > 10;
 
     // Charge Voltage
     if(max17330_read(conf, MAX17330_CHARGINGVOLTAGE, &buf, 1) != ESP_OK)
