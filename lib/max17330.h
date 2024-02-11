@@ -46,6 +46,7 @@
 #define MAX17330_COMMSTAT 0x061
 #define MAX17330_RESET 0x0AB
 #define MAX17330_PCKP 0x0DB
+#define MAX17330_VCELL 0x01A
 
 typedef enum {
     FLIGHT_BATTERY = 0,
@@ -62,6 +63,7 @@ typedef struct {
     double ttf_min;
     double battery_age;
     double current_mah;
+    double batt_voltage;
     double charge_voltage;
     double charge_current;
 } battery_stat_t;

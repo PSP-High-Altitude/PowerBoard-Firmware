@@ -25,7 +25,7 @@
 
 // Change for each board
 #define APP_SSID "Powerboard 1"
-#define APP_CHANNEL 1 
+#define APP_CHANNEL 1
 static const char *TAG = "Powerboard1";
 
 nvs_handle_t nvs;
@@ -114,6 +114,11 @@ esp_err_t init_wifi(void)
         ESP_LOGE(TAG, "Failed to start WiFi");
         return ESP_FAIL;
     }
+    if(esp_wifi_set_max_tx_power(20) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to set WiFi power");
+        return ESP_FAIL;
+    }
     
     ESP_LOGI(TAG, "WiFi AP started");
 
@@ -148,9 +153,9 @@ void print_info()
 {
     while(1) {
         battery_stat_t stat = get_battery(FLIGHT_BATTERY);
-        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, v_charge: %f, i_charge %f", FLIGHT_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.charge_voltage, stat.charge_current);
+        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, voltage: %f, v_charge: %f, i_charge %f", FLIGHT_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.batt_voltage, stat.charge_voltage, stat.charge_current);
         stat = get_battery(PYRO_BATTERY);
-        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, v_charge: %f, i_charge %f", PYRO_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.charge_voltage, stat.charge_current);
+        ESP_LOGI(TAG, "Battery: %d, SOC: %f, charging: %d, curr_cap: %f, max_cap: %f, current: %f, voltage: %f, v_charge: %f, i_charge %f", PYRO_BATTERY, stat.soc, stat.charging, stat.curr_cap, stat.max_cap, stat.current_mah, stat.batt_voltage, stat.charge_voltage, stat.charge_current);
         
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }

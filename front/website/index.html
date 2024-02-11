@@ -197,6 +197,9 @@
         
         function set_info(battery_obj, battery) {
             document.getElementById(battery == 0 ? "flight_info" : "pyro_info").innerText = 
+                "Battery State of Charge: " + (battery_obj.soc*100).toFixed() + "%\n" +
+                "Battery Voltage: " + battery_obj.voltage.toFixed(2) + "V\n" +
+                "Battery Current: " + battery_obj.current.toFixed(2) + "mA\n" +
                 "Current charge: " + battery_obj.curr_cap.toFixed() + " mAh\n" +
                 "Max capacity: " + battery_obj.max_cap.toFixed() + "mAh\n" +
                 "Number of cycles: " + battery_obj.charge_cycles.toFixed() + " cycles\n" +

@@ -237,6 +237,13 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
     stat->current_mah = 0.15625 * ((int16_t)buf);
     stat->charging = stat->current_mah > 10;
 
+    // Voltage
+    if(max17330_read(conf, MAX17330_VCELL, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    stat->batt_voltage = 78.125e-6 * buf;
+
     // Charge Voltage
     if(max17330_read(conf, MAX17330_CHARGINGVOLTAGE, &buf, 1) != ESP_OK)
     {

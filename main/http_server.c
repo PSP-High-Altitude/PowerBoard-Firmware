@@ -39,6 +39,8 @@ static esp_err_t battery_data_get_handler(httpd_req_t *req)
     cJSON_AddNumberToObject(flight_obj, "charge_cycles", flight_stat.charge_cycles);    // Maximum Capacity (mAh)
     cJSON_AddNumberToObject(flight_obj, "age", flight_stat.battery_age);                // Current charge (mAh)
     cJSON_AddNumberToObject(flight_obj, "ttf", flight_stat.ttf_min);                    // State of charge (decimal %)
+    cJSON_AddNumberToObject(flight_obj, "current", flight_stat.current_mah);            // Current (mAh)
+    cJSON_AddNumberToObject(flight_obj, "voltage", flight_stat.batt_voltage);           // Voltage (V)
     cJSON_AddNumberToObject(flight_obj, "tte", flight_stat.tte_min);                    // Charging?
     cJSON_AddItemToArray(root, flight_obj);
 
@@ -52,6 +54,8 @@ static esp_err_t battery_data_get_handler(httpd_req_t *req)
     cJSON_AddNumberToObject(pyro_obj, "charge_cycles", pyro_stat.charge_cycles);        // Maximum Capacity (mAh)
     cJSON_AddNumberToObject(pyro_obj, "age", pyro_stat.battery_age);                    // Current charge (mAh)
     cJSON_AddNumberToObject(pyro_obj, "ttf", pyro_stat.ttf_min);                        // State of charge (decimal %)
+    cJSON_AddNumberToObject(pyro_obj, "current", pyro_stat.current_mah);                // Current (mAh)
+    cJSON_AddNumberToObject(pyro_obj, "voltage", pyro_stat.batt_voltage);               // Voltage (V)
     cJSON_AddNumberToObject(pyro_obj, "tte", pyro_stat.tte_min);                        // Charging?
     cJSON_AddItemToArray(root, pyro_obj);
 
