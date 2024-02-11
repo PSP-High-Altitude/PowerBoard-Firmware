@@ -38,6 +38,31 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
 {
     // NVS should only be written a maximum of 7 times!
     uint16_t buf;
+    uint16_t read_buf[2];
+
+    buf = 0xE001;   // NV Recall
+    if(max17330_write(conf, MAX17330_COMMAND, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+
+    if(max17330_read(conf, MAX17330_nICHGCFG, read_buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    if(max17330_read(conf, MAX17330_nPACKCFG, read_buf+1, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    if(read_buf[0] != 0x314B || read_buf[1] != 0x0)
+    {
+        ESP_LOGI("MAX17330", "First time setup");
+    }
+    else
+    {
+        ESP_LOGI("MAX17330", "Already setup");
+        return ESP_OK;
+    }
 
     // Unlock write protection
     for(uint8_t i = 0; i < 2; i++)
@@ -62,6 +87,20 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
     {
         return ESP_FAIL;
     }
+
+    // Set protection current threshold
+    buf = 0xD04;
+    if(max17330_write(conf, MAX17330_nODSCTH, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+
+    buf = 0xE904;   // Copy NV block
+    if(max17330_write(conf, MAX17330_COMMAND, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    vTaskDelay(8 / portTICK_PERIOD_MS); // Wait tBLOCK
 
     // POR
     buf = 0x8000;
@@ -152,14 +191,7 @@ esp_err_t max17330_init(max17330_conf_t conf)
         return ESP_FAIL;
     }
     printf("Protection alert: 0x%x\n", buf);
-
-    // Set protection current threshold
-    buf = 0xD04;
-    if(max17330_write(conf, MAX17330_nODSCTH, &buf, 1) != ESP_OK)
-    {
-        return ESP_FAIL;
-    }
-
+    
     return ESP_OK;
 }
 

@@ -24,9 +24,17 @@
 #define MDNS_HOST_NAME "powerboard"
 
 // Change for each board
+#define PDB 2
+
+#if PDB == 1
 #define APP_SSID "Powerboard 1"
 #define APP_CHANNEL 1
 static const char *TAG = "Powerboard1";
+#elif PDB == 2
+#define APP_SSID "Powerboard 2"
+#define APP_CHANNEL 6
+static const char *TAG = "Powerboard2";
+#endif
 
 nvs_handle_t nvs;
 
