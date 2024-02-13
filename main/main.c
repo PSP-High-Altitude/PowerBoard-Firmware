@@ -24,7 +24,7 @@
 #define MDNS_HOST_NAME "powerboard"
 
 // Change for each board
-#define PDB 1
+#define PDB 2
 
 #if PDB == 1
 #define APP_SSID "Powerboard 1"
@@ -97,9 +97,9 @@ esp_err_t init_wifi(void)
             .ssid = APP_SSID,
             .ssid_len = strlen(APP_SSID),
             .channel = APP_CHANNEL,
-            .password = "",
+            .password = "iusucks1234",
             .max_connection = 5,
-            .authmode = WIFI_AUTH_OPEN,
+            .authmode = WIFI_AUTH_WPA2_PSK,
         },
     };
     if(esp_wifi_init(&init_conf) != ESP_OK)
@@ -122,7 +122,7 @@ esp_err_t init_wifi(void)
         ESP_LOGE(TAG, "Failed to start WiFi");
         return ESP_FAIL;
     }
-    if(esp_wifi_set_max_tx_power(20) != ESP_OK)
+    if(esp_wifi_set_max_tx_power(80) != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to set WiFi power");
         return ESP_FAIL;
