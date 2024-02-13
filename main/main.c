@@ -24,7 +24,7 @@
 #define MDNS_HOST_NAME "powerboard"
 
 // Change for each board
-#define PDB 2
+#define PDB 1
 
 #if PDB == 1
 #define APP_SSID "Powerboard 1"

@@ -38,7 +38,7 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
 {
     // NVS should only be written a maximum of 7 times!
     uint16_t buf;
-    uint16_t read_buf[2];
+    uint16_t read_buf[3];
 
     buf = 0xE001;   // NV Recall
     if(max17330_write(conf, MAX17330_COMMAND, &buf, 1) != ESP_OK)
@@ -54,7 +54,11 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
     {
         return ESP_FAIL;
     }
-    if(read_buf[0] != 0x314B || read_buf[1] != 0x0)
+    if(max17330_read(conf, MAX17330_nODSCTH, read_buf+2, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    if(read_buf[0] != 0x314B || read_buf[1] != 0x0 || read_buf[2] != 0x0D04)
     {
         ESP_LOGI("MAX17330", "First time setup");
     }
@@ -191,7 +195,7 @@ esp_err_t max17330_init(max17330_conf_t conf)
         return ESP_FAIL;
     }
     printf("Protection alert: 0x%x\n", buf);
-    
+
     return ESP_OK;
 }
 
