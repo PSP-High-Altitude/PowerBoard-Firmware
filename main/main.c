@@ -15,13 +15,9 @@
 #include "esp_event.h"
 #include "esp_wifi.h"
 #include "esp_log.h"
-#include "mdns.h"
-#include "lwip/apps/netbiosns.h"
 #include "power_control.h"
 #include "dirent.h"
-
-#define MDNS_INSTANCE "ESPMDNS"
-#define MDNS_HOST_NAME "powerboard"
+#include "string.h"
 
 // Change for each board
 #define PDB 2
@@ -41,22 +37,6 @@ nvs_handle_t nvs;
 esp_err_t start_http_server();
 esp_netif_t *wifi_if;
 TaskHandle_t print_info_handle;
-
-static void initialise_mdns(void)
-{
-    mdns_init();
-    mdns_hostname_set(MDNS_HOST_NAME);
-    mdns_instance_name_set(MDNS_INSTANCE);
-    mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0);
-    mdns_service_instance_name_set("_http", "_tcp", "Powerboard Web Server");
-
-    mdns_txt_item_t serviceTxtData[2] = {
-        {"board", "esp32"},
-        {"path", "/"}
-    };
-
-    mdns_service_txt_set("_http", "_tcp", serviceTxtData, 2);
-}
 
 esp_err_t init_fs(void)
 {
@@ -179,10 +159,6 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     wifi_if = esp_netif_create_default_wifi_ap();
-    
-    initialise_mdns();
-    netbiosns_init();
-    netbiosns_set_name("powerboard");
 
     ESP_ERROR_CHECK(init_power_control());
     ESP_ERROR_CHECK(init_wifi());
