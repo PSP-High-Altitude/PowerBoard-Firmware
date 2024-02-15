@@ -169,5 +169,5 @@ void app_main(void)
     esp_netif_get_ip_info(wifi_if, &ip_info);
     ESP_LOGI(TAG, "IP Address: " IPSTR, IP2STR(&ip_info.ip));
 
-    xTaskCreate(print_info, "print_info", 2048, NULL, tskIDLE_PRIORITY + 1, &print_info_handle);
+    xTaskCreate(print_info, "print_info", 4096, NULL, tskIDLE_PRIORITY + 1, &print_info_handle);
 }

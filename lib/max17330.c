@@ -199,6 +199,38 @@ esp_err_t max17330_init(max17330_conf_t conf)
     return ESP_OK;
 }
 
+esp_err_t max17330_reset(max17330_conf_t conf)
+{
+    // Hardware Reset
+    uint16_t buf = 0x000F;
+    if(max17330_write(conf, 0x060, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    vTaskDelay(10 / portTICK_PERIOD_MS);
+
+    // Configuration Reset
+    buf = 0x8000;
+    if(max17330_write(conf, MAX17330_RESET, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    printf("Resetting MAX17330");
+    esp_err_t err;
+    while((err = max17330_read(conf, MAX17330_RESET, &buf, 1)) == ESP_OK && (buf & 0x8000) != 0)
+    {
+        printf(".");
+        vTaskDelay(1 / portTICK_PERIOD_MS);
+    }
+    printf("\n");
+    if(err != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+
+    return ESP_OK;
+}
+
 esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
 {
     // Full battery capacity
@@ -293,6 +325,6 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
         return ESP_FAIL;
     }
     stat->charge_current = 0.15625 * ((int16_t)buf);
-
+    
     return ESP_OK;
 }

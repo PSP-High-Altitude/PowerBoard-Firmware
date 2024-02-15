@@ -77,6 +77,9 @@ typedef struct {
 
 esp_err_t max17330_init(max17330_conf_t conf);
 
+// Resets the registers and the fuel gauge
+esp_err_t max17330_reset(max17330_conf_t conf);
+
 esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat);
 
 esp_err_t max17330_first_time_setup(max17330_conf_t conf);
