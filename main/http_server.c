@@ -16,6 +16,7 @@
 #include "power_control.h"
 
 extern uint8_t armed;
+static httpd_handle_t server = NULL;
 
 static const char *HTTP_TAG = "http-server";
 #define INDEX_PATH "/www/index.html"
@@ -219,7 +220,6 @@ static esp_err_t jquery_get_handler(httpd_req_t *req)
 
 esp_err_t start_http_server()
 {
-    httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.stack_size = 8192;
     config.uri_match_fn = httpd_uri_match_wildcard;
@@ -286,5 +286,15 @@ esp_err_t start_http_server()
     };
     httpd_register_uri_handler(server, &jquery_get_uri);
 
+    return ESP_OK;
+}
+
+esp_err_t stop_http_server()
+{
+    ESP_LOGI(HTTP_TAG, "Stopping HTTP Server");
+    if(httpd_stop(&server) != ESP_OK) {
+        ESP_LOGE(HTTP_TAG, "stop server failed");
+        return ESP_FAIL;
+    }
     return ESP_OK;
 }

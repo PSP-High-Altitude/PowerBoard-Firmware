@@ -19,6 +19,8 @@
 #include "dirent.h"
 #include "string.h"
 
+#define RESET_INTERVAL  300000
+
 // Change for each board
 #define PDB 2
 
@@ -35,8 +37,10 @@ static const char *TAG = "Powerboard2";
 nvs_handle_t nvs;
 
 esp_err_t start_http_server();
+esp_err_t stop_http_server();
 esp_netif_t *wifi_if;
 TaskHandle_t print_info_handle;
+TaskHandle_t reset_interface_handle;
 
 esp_err_t init_fs(void)
 {
@@ -149,6 +153,19 @@ void print_info()
     }
 }
 
+void reset_interface()
+{
+    while (1)
+    {
+        vTaskDelay(RESET_INTERVAL / portTICK_PERIOD_MS);
+        ESP_ERROR_CHECK(stop_http_server());
+        ESP_ERROR_CHECK(esp_wifi_stop());
+        ESP_ERROR_CHECK(esp_wifi_deinit());
+        ESP_ERROR_CHECK(init_wifi());
+        ESP_ERROR_CHECK(start_http_server());
+    }
+}
+
 void app_main(void)
 {
     // Prioritize loading the last state of the board
@@ -170,4 +187,5 @@ void app_main(void)
     ESP_LOGI(TAG, "IP Address: " IPSTR, IP2STR(&ip_info.ip));
 
     xTaskCreate(print_info, "print_info", 4096, NULL, tskIDLE_PRIORITY + 1, &print_info_handle);
+    xTaskCreate(reset_interface, "reset_interface", 2048, NULL, tskIDLE_PRIORITY + 2, &reset_interface_handle);
 }
