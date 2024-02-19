@@ -18,11 +18,7 @@
 #include "power_control.h"
 #include "dirent.h"
 #include "string.h"
-
-#define RESET_INTERVAL  300000
-
-// Change for each board
-#define PDB 2
+#include "main.h"
 
 #if PDB == 1
 #define APP_SSID "Powerboard 1"
@@ -32,7 +28,13 @@ static const char *TAG = "Powerboard1";
 #define APP_SSID "Powerboard 2"
 #define APP_CHANNEL 6
 static const char *TAG = "Powerboard2";
+#elif PDB == 3
+#define APP_SSID "Powerboard 3"
+#define APP_CHANNEL 11
+static const char *TAG = "Powerboard3";
 #endif
+
+#define RESET_INTERVAL  300000
 
 nvs_handle_t nvs;
 

@@ -14,6 +14,7 @@
 #include "esp_vfs.h"
 #include "cJSON.h"
 #include "power_control.h"
+#include "main.h"
 
 extern uint8_t armed;
 static httpd_handle_t server = NULL;
@@ -220,6 +221,21 @@ static esp_err_t jquery_get_handler(httpd_req_t *req)
 
 esp_err_t start_http_server()
 {
+    FILE *file = fopen(INDEX_PATH, "r+");
+
+    if (file == NULL) {
+        return ESP_FAIL;
+    }
+    do {
+        char c = fgetc(file);
+        if (c == '~') {
+            fseek(file, -1, SEEK_CUR);
+            fputc('0' + PDB, file);
+        }
+    } while (!feof(file));
+
+    fclose(file);
+
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.stack_size = 8192;
     config.uri_match_fn = httpd_uri_match_wildcard;
