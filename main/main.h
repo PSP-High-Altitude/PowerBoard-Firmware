@@ -2,6 +2,6 @@
 #define MAIN_H
 
 // Change for each board
-#define PDB 3
+#define PDB 1
 
 #endif

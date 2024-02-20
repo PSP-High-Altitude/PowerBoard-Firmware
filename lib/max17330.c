@@ -260,8 +260,16 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
     }
     stat->curr_cap = 0.5 * buf;
 
+    /* NOT WORKING RIGHT >:(
     // Current state of charge
     if(max17330_read(conf, MAX17330_REPSOC, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    stat->soc = buf / 25600.0;
+    */
+    // Current state of charge from voltage
+    if(max17330_read(conf, MAX17330_VFSOC, &buf, 1) != ESP_OK)
     {
         return ESP_FAIL;
     }
