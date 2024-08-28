@@ -34,8 +34,6 @@ static const char *TAG = "Powerboard2";
 static const char *TAG = "Powerboard3";
 #endif
 
-#define RESET_INTERVAL  300000
-
 nvs_handle_t nvs;
 
 esp_err_t start_http_server();
@@ -83,7 +81,7 @@ esp_err_t init_wifi(void)
             .ssid = APP_SSID,
             .ssid_len = strlen(APP_SSID),
             .channel = APP_CHANNEL,
-            .password = "iusucks1234",
+            .password = PASSWORD,
             .max_connection = 5,
             .authmode = WIFI_AUTH_WPA2_PSK,
         },
@@ -106,6 +104,11 @@ esp_err_t init_wifi(void)
     if(esp_wifi_start() != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to start WiFi");
+        return ESP_FAIL;
+    }
+    if(esp_wifi_set_inactive_time(WIFI_IF_AP, 0xFFFF) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to set WiFi inactive time");
         return ESP_FAIL;
     }
     if(esp_wifi_set_max_tx_power(80) != ESP_OK)
@@ -189,5 +192,5 @@ void app_main(void)
     ESP_LOGI(TAG, "IP Address: " IPSTR, IP2STR(&ip_info.ip));
 
     xTaskCreate(print_info, "print_info", 4096, NULL, tskIDLE_PRIORITY + 1, &print_info_handle);
-    xTaskCreate(reset_interface, "reset_interface", 2048, NULL, tskIDLE_PRIORITY + 2, &reset_interface_handle);
+    //xTaskCreate(reset_interface, "reset_interface", 2048, NULL, tskIDLE_PRIORITY + 2, &reset_interface_handle);
 }
