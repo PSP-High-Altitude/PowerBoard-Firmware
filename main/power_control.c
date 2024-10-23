@@ -9,6 +9,7 @@ extern nvs_handle_t nvs;
 const max17330_conf_t flight = {
     .battery = FLIGHT_BATTERY,
     .clk = 100000,
+    .battery_cap_mah = 2000,
     .scl = GPIO_NUM_2,
     .sda = GPIO_NUM_1,
 };
@@ -16,6 +17,7 @@ const max17330_conf_t flight = {
 const max17330_conf_t pyro = {
     .battery = PYRO_BATTERY,
     .clk = 100000,
+    .battery_cap_mah = 1000,
     .scl = GPIO_NUM_4,
     .sda = GPIO_NUM_3,
 };

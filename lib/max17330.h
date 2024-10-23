@@ -72,6 +72,7 @@ typedef struct {
 
 typedef struct {
     battery_t battery;
+    uint32_t battery_cap_mah;
     int sda;
     int scl;
     int clk;

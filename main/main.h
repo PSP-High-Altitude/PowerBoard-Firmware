@@ -2,7 +2,7 @@
 #define MAIN_H
 
 // Change for each board
-#define PDB 2
+#define PDB 3
 #define PASSWORD "iusucks1234"
 #define RESET_INTERVAL (60000 * 5)
 

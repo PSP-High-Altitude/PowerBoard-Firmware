@@ -63,7 +63,7 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
         return ESP_FAIL;
     }
     printf("MAX17330 %d: nICHGCFG = %x, nPACKCFG = %x, nODSCTH = %x, nDESIGNCAP = %x\n", conf.battery, read_buf[0], read_buf[1], read_buf[2], read_buf[3]);
-    if(read_buf[0] != 0x314B || read_buf[1] != 0x0 || read_buf[2] != 0x0D04 || read_buf[3] != 2500U)
+    if(read_buf[0] != 0x314B || read_buf[1] != 0x0 || read_buf[2] != 0x0D00 || read_buf[3] != 2*conf.battery_cap_mah)
     {
         ESP_LOGI("MAX17330", "First time setup");
     }
@@ -98,14 +98,14 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
     }
 
     // Set protection current threshold
-    buf = 0xD04;
+    buf = 0xD00;
     if(max17330_write(conf, MAX17330_nODSCTH, &buf, 1) != ESP_OK)
     {
         return ESP_FAIL;
     }
 
     // Set battery design capacity
-    buf = 2500U;
+    buf = 2 * conf.battery_cap_mah;
     if(max17330_write(conf, MAX17330_nDESIGNCAP, &buf, 1) != ESP_OK)
     {
         return ESP_FAIL;
