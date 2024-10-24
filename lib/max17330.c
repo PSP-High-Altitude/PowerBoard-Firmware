@@ -63,7 +63,7 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
         return ESP_FAIL;
     }
     printf("MAX17330 %d: nICHGCFG = %x, nPACKCFG = %x, nODSCTH = %x, nDESIGNCAP = %x\n", conf.battery, read_buf[0], read_buf[1], read_buf[2], read_buf[3]);
-    if(read_buf[0] != 0x314B || read_buf[1] != 0x0 || read_buf[2] != 0x0D00 || read_buf[3] != 2*conf.battery_cap_mah)
+    if(read_buf[0] != 0x314B || read_buf[1] != 0x1 || read_buf[2] != 0x0D00 || read_buf[3] != 2*conf.battery_cap_mah)
     {
         ESP_LOGI("MAX17330", "First time setup");
     }
@@ -91,7 +91,7 @@ esp_err_t max17330_first_time_setup(max17330_conf_t conf)
     }
 
     // Set thermistor disabled
-    buf = 0x0;
+    buf = 0x1;
     if(max17330_write(conf, MAX17330_nPACKCFG, &buf, 1) != ESP_OK)
     {
         return ESP_FAIL;
@@ -175,6 +175,20 @@ esp_err_t max17330_init(max17330_conf_t conf)
         }
     }
 
+    // Config disable thermistor
+    buf = 0x2204;
+    if(max17330_write(conf, 0x00B, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+
+    // Clear alerts
+    buf = 0x0000;
+    if(max17330_write(conf, MAX17330_PROTALRT, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+
     // Number of writes
     buf = 0xE29B;
     if(max17330_write(conf, MAX17330_COMMAND, &buf, 1) != ESP_OK)
@@ -201,12 +215,6 @@ esp_err_t max17330_init(max17330_conf_t conf)
     {
         return ESP_FAIL;
     }
-
-    if(max17330_read(conf, MAX17330_PROTALRT, &buf, 1) != ESP_OK)
-    {
-        return ESP_FAIL;
-    }
-    printf("Protection alert: 0x%x\n", buf);
 
     return ESP_OK;
 }
@@ -345,6 +353,18 @@ esp_err_t max17330_get_battery_state(max17330_conf_t conf, battery_stat_t *stat)
         return ESP_FAIL;
     }
     stat->charge_current = 0.15625 * ((int16_t)buf);
+
+    if(max17330_read(conf, MAX17330_PROTALRT, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    printf("Protection alert: 0x%x\n", buf);
+
+    if(max17330_read(conf, MAX17330_PROTSTATUS, &buf, 1) != ESP_OK)
+    {
+        return ESP_FAIL;
+    }
+    printf("Protection status: 0x%x\n", buf);
     
     return ESP_OK;
 }
