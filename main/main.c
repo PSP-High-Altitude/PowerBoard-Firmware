@@ -192,5 +192,5 @@ void app_main(void)
     ESP_LOGI(TAG, "IP Address: " IPSTR, IP2STR(&ip_info.ip));
 
     xTaskCreate(print_info, "print_info", 4096, NULL, tskIDLE_PRIORITY + 1, &print_info_handle);
-    //xTaskCreate(reset_interface, "reset_interface", 2048, NULL, tskIDLE_PRIORITY + 2, &reset_interface_handle);
+    xTaskCreate(reset_interface, "reset_interface", 2048, NULL, tskIDLE_PRIORITY + 2, &reset_interface_handle);
 }
